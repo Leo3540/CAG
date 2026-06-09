@@ -1,0 +1,729 @@
+/* ============================================================
+   ANIMAÇÃO DE FLUXO — Simulação de água nos tubos
+   Técnica: pseudo-elemento ::after com gradiente de bolinhas
+   animado via background-position
+============================================================ */
+
+/* --- Keyframes de direção --- */
+@keyframes fluxo-dir {
+  from { background-position: 0 0; }
+  to   { background-position: 40px 0; }
+}
+@keyframes fluxo-esq {
+  from { background-position: 0 0; }
+  to   { background-position: -40px 0; }
+}
+@keyframes fluxo-baixo {
+  from { background-position: 0 0; }
+  to   { background-position: -5px 40px; }
+}
+@keyframes fluxo-cima {
+  from { background-position: -6px 0; }
+  to   { background-position: -3px -50px; }
+}
+
+/* --- Padrão de bolhas: bolinhas semitransparentes sobre o tubo --- */
+.fluxo-dir .corpo,
+.fluxo-esq .corpo,
+.fluxo-baixo .corpo,
+.fluxo-cima .corpo,
+.fluxo-parado .corpo {
+  position: relative;
+  overflow: hidden;
+}
+
+.fluxo-dir  .corpo::after,
+.fluxo-esq  .corpo::after,
+.fluxo-cima  .corpo::after,
+.fluxo-baixo .corpo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.55) 3px, transparent 3px);
+  background-size: 20px 13px;
+  pointer-events: none;
+}
+
+.fluxo-dir  .corpo::after { animation: fluxo-dir  0.8s linear infinite; }
+.fluxo-esq  .corpo::after { animation: fluxo-esq  0.8s linear infinite; }
+.fluxo-baixo .corpo::after { animation: fluxo-baixo 0.8s linear infinite; }
+.fluxo-cima .corpo::after { animation: fluxo-cima 0.8s linear infinite; }
+
+/* Tubos parados (válvula fechada) — sem animação, bolhas estáticas acinzentadas */
+.fluxo-parado .corpo {
+  position: relative;
+  overflow: hidden;
+}
+.fluxo-parado .corpo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(225, 93, 93, 0.4) 13px, transparent 3px);
+  background-size: 20px 13px;
+}
+
+/* ============================================================
+   RESET
+============================================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================
+   BODY
+============================================================ */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #e8edf2;
+  overflow: hidden;
+  user-select: none;
+  cursor: grab;
+}
+body.dragging {
+  cursor: grabbing;
+}
+
+/* ============================================================
+   PAINEL DE CONTROLE
+============================================================ */
+#painel {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 16px;
+  background: rgba(20, 28, 38, 0.93);
+  border: 1px solid #3a4a5a;
+  border-radius: 8px;
+  color: #9bb;
+  font-size: 12px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+#painel .sep {
+  border-left: 1px solid #3a4a5a;
+  height: 18px;
+}
+
+#painel button {
+  padding: 4px 11px;
+  background: #1e3048;
+  border: 1px solid #3a5a7a;
+  border-radius: 5px;
+  color: #8bc;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#painel button:hover {
+  background: #2a4a6a;
+}
+
+#coords,
+#escala-label {
+  font-family: monospace;
+  font-size: 11px;
+  color: #6ad;
+}
+#escala-label {
+  min-width: 80px;
+}
+
+/* ============================================================
+   CANVAS — contém todos os elementos do diagrama
+============================================================ */
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* ============================================================
+   TUBO HORIZONTAL
+   Altura: 18px | Flanges: 7px
+============================================================ */
+.tubo-horizontal {
+  position: absolute;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.tubo-horizontal .flange {
+  width: 7px;
+  height: 16px;
+  border-radius: 2px;
+  border: 1px solid;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+.tubo-horizontal .flange-esq { margin-right: -1px; }
+.tubo-horizontal .flange-dir { margin-left:  -1px; }
+
+.tubo-horizontal .corpo {
+  flex: 1;
+  height: 13px;
+  border-radius: 2px;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+}
+
+/* ============================================================
+   TUBO VERTICAL
+   Largura: 18px | Flanges: 7px
+============================================================ */
+.tubo-vertical {
+  position: absolute;
+  width: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(1px 0 2px rgba(0, 0, 0, 0.2));
+}
+
+.tubo-vertical .flange {
+  width: 16px;
+  height: 7px;
+  border-radius: 2px;
+  border: 1px solid;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+.tubo-vertical .flange-top { margin-bottom: -1px; }
+.tubo-vertical .flange-bot { margin-top:    -1px; }
+
+.tubo-vertical .corpo {
+  flex: 1;
+  width: 13px;
+  border-radius: 2px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+}
+
+/* ============================================================
+   CORES — SUPPLY (laranja)
+============================================================ */
+.supply .flange,
+.tubo-horizontal.supply .flange {
+  background: linear-gradient(to bottom, #c87a3e 0%, #e8a068 50%, #a55828 100%);
+  border-color: #7a3f1a;
+}
+.supply .corpo,
+.tubo-horizontal.supply .corpo {
+  background: linear-gradient(to bottom, #a55828 0%, #c87a3e 12%, #e8a068 35%, #f0b080 50%, #e8a068 65%, #c07040 88%, #8b4820 100%);
+  border-top-color:    #7a3f1a;
+  border-bottom-color: #5c2f12;
+}
+
+.tubo-vertical.supply .flange {
+  background: linear-gradient(to right, #c87a3e 0%, #e8a068 50%, #a55828 100%);
+  border-color: #7a3f1a;
+}
+.tubo-vertical.supply .corpo {
+  background: linear-gradient(to right, #8b4820 0%, #c07040 12%, #e8a068 35%, #f0b080 50%, #e8a068 65%, #c07040 88%, #8b4820 100%);
+  border-left-color:  #7a3f1a;
+  border-right-color: #5c2f12;
+}
+
+/* ============================================================
+   CORES — RETORNO (azul)
+============================================================ */
+.retorno .flange,
+.tubo-horizontal.retorno .flange {
+  background: linear-gradient(to bottom, #4a6e8e 0%, #6a92b8 50%, #38587a 100%);
+  border-color: #2a4260;
+}
+.retorno .corpo,
+.tubo-horizontal.retorno .corpo {
+  background: linear-gradient(to bottom, #385878 0%, #4a6e8e 12%, #6a92b8 35%, #7aaacc 50%, #6a92b8 65%, #4a6e8e 88%, #2a4260 100%);
+  border-top-color:    #2a4260;
+  border-bottom-color: #1a2e46;
+}
+
+.tubo-vertical.retorno .flange {
+  background: linear-gradient(to right, #4a6e8e 0%, #6a92b8 50%, #38587a 100%);
+  border-color: #2a4260;
+}
+.tubo-vertical.retorno .corpo {
+  background: linear-gradient(to right, #2a4260 0%, #4a6e8e 12%, #6a92b8 35%, #7aaacc 50%, #6a92b8 65%, #4a6e8e 88%, #2a4260 100%);
+  border-left-color:  #2a4260;
+  border-right-color: #1a2e46;
+}
+
+/* ============================================================
+   TÊ (T-Junction) — 40×40px
+============================================================ */
+.te {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+.te .principal {
+  position: absolute;
+  width: 40px;
+  height: 13px;
+  top: 13px;
+  left: 0;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.te .derivacao {
+  position: absolute;
+  width: 13px;
+  height: 15px;
+  left: 13px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+}
+
+.te .flange {
+  position: absolute;
+  border-radius: 2px;
+  border: 1px solid;
+  z-index: 2;
+}
+
+/* Tê ┬ — derivação para baixo */
+.te-baixo .principal { top: 13px; }
+.te-baixo .derivacao { top: 24px; }
+.te-baixo .flange-1  { width: 5px;  height: 16px; top: 12px;  left: -1px; }
+.te-baixo .flange-2  { width: 5px;  height: 16px; top: 12px;  right: -1px; }
+.te-baixo .flange-3  { width: 18px; height: 5px;  bottom: -1px; left: 11px; }
+
+/* Tê ┴ — derivação para cima */
+.te-cima .principal { top: 13px; }
+.te-cima .derivacao { top: 0; }
+.te-cima .flange-1  { width: 5px;  height: 16px; top: 12px; left: -1px; }
+.te-cima .flange-2  { width: 5px;  height: 16px; top: 12px; right: -1px; }
+.te-cima .flange-3  { width: 17px; height: 5px;  top: -1px; left: 11px; }
+
+/* Supply */
+.te.supply .principal { background: linear-gradient(to bottom, #a55828 0%, #e8a068 40%, #f0b080 50%, #e8a068 60%, #8b4820 100%); border-color: #7a3f1a; }
+.te.supply .derivacao { background: linear-gradient(to right,  #a55828 0%, #e8a068 40%, #f0b080 50%, #e8a068 60%, #8b4820 100%); border-color: #7a3f1a; }
+.te.supply .flange    { background: linear-gradient(to bottom, #c87a3e 0%, #e8a068 50%, #a55828 100%); border-color: #7a3f1a; }
+.te.supply .flange-3  { background: linear-gradient(to right,  #c87a3e 0%, #e8a068 50%, #a55828 100%); }
+
+/* Retorno */
+.te.retorno .principal { background: linear-gradient(to bottom, #385878 0%, #6a92b8 40%, #7aaacc 50%, #6a92b8 60%, #2a4260 100%); border-color: #2a4260; }
+.te.retorno .derivacao { background: linear-gradient(to right,  #385878 0%, #6a92b8 40%, #7aaacc 50%, #6a92b8 60%, #2a4260 100%); border-color: #2a4260; }
+.te.retorno .flange    { background: linear-gradient(to bottom, #4a6e8e 0%, #6a92b8 50%, #38587a 100%); border-color: #2a4260; }
+.te.retorno .flange-3  { background: linear-gradient(to right,  #4a6e8e 0%, #6a92b8 50%, #38587a 100%); }
+
+/* ============================================================
+   COTOVELO SVG
+============================================================ */
+.cotovelo {
+  position: absolute;
+  width: 44px;
+  height: 56px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+}
+
+/* ============================================================
+   BOMBA — compacta
+============================================================ */
+.bomba {
+  position: absolute;
+  width: 110px;
+  height: 95px;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+}
+
+.bomba svg {
+  width: 50%;
+  height: 100%;
+  display: block;
+}
+
+.bomba .num {
+  position: absolute;
+  top: 28%;
+  left: 3%;
+  width: 30%;
+  height: 36%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  font-size: 9px;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+/* ============================================================
+   VÁLVULA — clique para abrir/fechar
+============================================================ */
+.valvula {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.valvula:hover  { transform: scale(1.12); }
+.valvula:active { transform: scale(0.95); }
+
+.corpo1 {
+  position: relative;
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle at 35% 35%, #ff6b6b, #d40000, #7a0000);
+  border: 3px solid #000;
+  border-radius: 50%;
+  margin: 0 -8px;
+  z-index: 2;
+  transition: background 0.3s;
+}
+
+.volante {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  background: radial-gradient(circle, #644e4e, #a00000);
+  border: 5px solid #7a0000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.4s;
+}
+
+.raio {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 1px;
+  background: #f6f5f8;
+}
+.raio:nth-child(1) { transform: translate(-50%, -50%) rotate(0deg);   }
+.raio:nth-child(2) { transform: translate(-50%, -50%) rotate(60deg);  }
+.raio:nth-child(3) { transform: translate(-50%, -50%) rotate(-60deg); }
+
+.centro {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: #ccc;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Estado: fechada */
+.fechada .volante {
+  transform: translate(-50%, -50%) rotate(60deg);
+}
+.fechada .corpo1 {
+  background: radial-gradient(circle at 35% 35%, #aaa, #555, #222);
+}
+.datahall{
+  position: absolute;
+  background: gray;
+  width: 170px;
+  height: 250px;
+  opacity: 30%;
+  font-size: small;
+  text-align: center;
+  color: #0c007a;
+}
+
+
+/* Container principal do componente */
+.tanque-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 260px;
+  position: absolute;
+  top: 100px;
+  left: 1208px;
+}
+
+/* ====== TANQUE SUPERIOR ====== */
+.tanque-superior {
+  width: 40%;
+  height: 70px;
+  background: linear-gradient(to right, #b0b0b0, #e0e0e0, #b0b0b0);
+  border: 2px solid #777;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: -2px; /* encosta no tanque principal */
+  z-index: 2;
+}
+
+.tanque-superior .nivel-agua {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80%; /* altere para simular o nível */
+  background-color: #0000ff;
+}
+
+/* ====== TANQUE PRINCIPAL ====== */
+.tanque-principal {
+  width: 50%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Topo arredondado */
+.tanque-topo {
+  width: 100%;
+  height: 25px;
+  background: linear-gradient(to right, #8a8a8a, #d8d8d8, #8a8a8a);
+  border: 2px solid #555;
+  border-radius: 50% 50% 10px 10px / 100% 100% 10px 10px;
+}
+
+/* Corpo do tanque */
+.tanque-corpo {
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    #6e6e6e 0%,
+    #c8c8c8 30%,
+    #ffffff 50%,
+    #c8c8c8 70%,
+    #6e6e6e 100%
+  );
+  border-left: 2px solid #555;
+  border-right: 2px solid #555;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+/* Caixas brancas com a temperatura */
+.sensor {
+  position: relative;
+  z-index: 1;
+  background-color: #ffffff;
+  border: 2px solid #000;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Base do tanque */
+.tanque-base {
+  width: 100%;
+  height: 30px;
+  background: linear-gradient(to right, #6e6e6e, #c8c8c8, #6e6e6e);
+  border: 2px solid #555;
+  border-radius: 0 0 50% 50% / 0 0 40px 40px;
+}
+
+/* ====== PÉS DO TANQUE ====== */
+.tanque-pes {
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: -10px;
+}
+
+.pe {
+  width: 14px;
+  height: 40px;
+  background: linear-gradient(to right, #6e6e6e, #b0b0b0, #6e6e6e);
+  border: 1px solid #444;
+  border-radius: 0 0 4px 4px;
+}
+
+.pe-central {
+  width: 14px;
+  height: 25px;
+  background: linear-gradient(to right, #6e6e6e, #b0b0b0, #6e6e6e);
+  border-radius: 4px;
+  align-self: center;
+  margin-top: 10px;
+}
+
+/* =========================
+POPUP CAG
+========================= */
+
+.popup-cag {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.popup-cag.hidden {
+  display: none;
+}
+
+.popup-box {
+  background: #111;
+  padding: 30px 40px;
+  border-radius: 10px;
+  text-align: center;
+
+  border: 2px solid red;
+
+  box-shadow: 0 0 20px rgba(255,0,0,0.8);
+  animation: pulse-alert 1s infinite;
+}
+
+.popup-box h2 {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.popup-box p {
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+@keyframes pulse-alert {
+  0% { box-shadow: 0 0 10px red; }
+  50% { box-shadow: 0 0 25px red; }
+  100% { box-shadow: 0 0 10px red; }
+}
+
+.desligado {
+    /* Variáveis padrão (podem ser sobrescritas no HTML inline) */
+    --largura: 250px;
+    --altura: 500px;
+    --cor-fundo: #9ea29f;       /* verde claro */
+    --cor-escura: #788f7e;      /* verde escuro */
+    --cor-media: #e9f0ec;       /* verde médio (laterais) */
+    --cor-branca: #ffffff;
+    --cor-borda: #606060;
+
+    width: var(--largura);
+    height: var(--altura);
+    display: flex;
+    position: relative;
+}
+.fachada {
+    /* Variáveis padrão (podem ser sobrescritas no HTML inline) */
+    --largura: 250px;
+    --altura: 500px;
+    --cor-fundo: #5fe87a;       /* verde claro */
+    --cor-escura: #1f6b34;      /* verde escuro */
+    --cor-media: #4ade80;       /* verde médio (laterais) */
+    --cor-branca: #ffffff;
+    --cor-borda: #2d7a3f;
+
+    width: var(--largura);
+    height: var(--altura);
+    display: flex;
+    position: relative;
+}
+
+
+/* Semicírculos laterais externos */
+.laterais-esquerda {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    /* largura proporcional ao tamanho da fachada */
+    width: calc(var(--largura) * 0.06);
+    padding: calc(var(--altura) * 0.05) 0;
+}
+/* Área verde principal */
+.conteudo {
+    flex: 1;
+    background-color: var(--cor-fundo);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--largura) * 0.04);
+    padding: calc(var(--largura) * 0.04);
+}
+
+/* ===== COLUNA ESQUERDA ===== */
+.coluna-esquerda {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--altura) * 0.012);
+}
+
+.quadrado-branco {
+    background-color: var(--cor-branca);
+    aspect-ratio: 1 / 1;
+    width: 65%;
+    border: 1px solid #ccc;
+}
+
+.persiana {
+    flex: 1;
+    background: repeating-linear-gradient(
+        to right,
+        var(--cor-borda) 0px,
+        var(--cor-borda) 2px,
+        var(--cor-fundo) 2px,
+        var(--cor-fundo) 5px
+    );
+    border: 1px solid var(--cor-borda);
+}
+
+/* ===== COLUNA DIREITA ===== */
+.coluna-direita {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--altura) * 0.015);
+}
+
+.bloco {
+    flex: 1;
+    border: 1px solid var(--cor-borda);
+}
+
+.bloco.verde-escuro {
+    background-color: var(--cor-escura);
+}
+
+.bloco.branco {
+    background-color: var(--cor-branca);
+}
+
+.popup-box button {
+  margin-top: 8px;
+  padding: 8px 24px;
+  background: #c00;
+  border: 1px solid #f00;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.popup-box button:hover {
+  background: #e00;
+}
