@@ -3,7 +3,7 @@
 
   <head>
     <meta charset="UTF-8">
-    <title>Diagrama de Tubulação — v2</title>
+    <title>Diagrama de Tubulação — CAG 01</title>
     <link rel="stylesheet" href="./index.css">
     <script src="./index.js" defer></script>
   </head>
@@ -590,7 +590,7 @@
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
         </div>
-        <div class="tubo-vertical supply fluxo-baixo" id="sh-49" style="top:659px; left:731px; height:110px;">
+        <div class="tubo-vertical supply fluxo-parado" id="sh-49" style="top:659px; left:731px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
@@ -751,12 +751,12 @@
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
         </div> <!-- Tubo que sai do RL05-->
-        <div class="tubo-vertical retorno fluxo-baixo" id="sh-60" style="top:769px; left:732px; height:110px;">
+        <div class="tubo-vertical retorno fluxo-parado" id="sh-60" style="top:769px; left:732px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
         </div> <!-- Tubo que sai do RL05-->
-        <div class="tubo-vertical retorno fluxo-cima" id="sh-61" style="top:710px; left:792px; height:170px;">
+        <div class="tubo-vertical retorno fluxo-parado" id="sh-61" style="top:710px; left:792px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
@@ -1420,6 +1420,16 @@
         </div>
       </div>
 
+        <div class="campo">
+            <input type="number" id="valvula_fancoil" value="75" oninput="atualizar()">
+            <label id='val-fan'>% Valvulas Fancoil</label>
+        </div>
+
+        <div class="campo">
+            <input type="number" id="bypass" value="25" readonly>
+            <label id='val_bypass'>% Valvula Bypass</label>
+        </div>
+
     </div><!-- /#canvas -->
 
     <div id="popup-cag" class="popup-cag hidden">
@@ -1429,7 +1439,6 @@
         <button onclick="document.getElementById('popup-cag').classList.add('hidden')">Fechar</button>
       </div>
     </div>
-
 
   </body>
 
