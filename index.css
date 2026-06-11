@@ -14,12 +14,12 @@
   to   { background-position: -40px 0; }
 }
 @keyframes fluxo-baixo {
-  from { background-position: 0 0; }
-  to   { background-position: -5px 40px; }
+  from { background-position: -6px 0; }
+  to   { background-position: -6px 40px; }
 }
 @keyframes fluxo-cima {
   from { background-position: -6px 0; }
-  to   { background-position: -3px -50px; }
+  to   { background-position: -6.5px -50px; }
 }
 
 /* --- Padrão de bolhas: bolinhas semitransparentes sobre o tubo --- */
@@ -44,10 +44,10 @@
   pointer-events: none;
 }
 
-.fluxo-dir  .corpo::after { animation: fluxo-dir  0.8s linear infinite; }
-.fluxo-esq  .corpo::after { animation: fluxo-esq  0.8s linear infinite; }
-.fluxo-baixo .corpo::after { animation: fluxo-baixo 0.8s linear infinite; }
-.fluxo-cima .corpo::after { animation: fluxo-cima 0.8s linear infinite; }
+.fluxo-dir  .corpo::after { animation: fluxo-dir  1.5s linear infinite; }
+.fluxo-esq  .corpo::after { animation: fluxo-esq  1.5s linear infinite; }
+.fluxo-baixo .corpo::after { animation: fluxo-baixo 1.5s linear infinite; }
+.fluxo-cima .corpo::after { animation: fluxo-cima 1.5s linear infinite; }
 
 /* Tubos parados (válvula fechada) — sem animação, bolhas estáticas acinzentadas */
 .fluxo-parado .corpo {
@@ -76,7 +76,7 @@
 ============================================================ */
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #e8edf2;
+  background: #2284e6;
   overflow: hidden;
   user-select: none;
   cursor: grab;
@@ -434,16 +434,16 @@ body.dragging {
 }
 .datahall{
   position: absolute;
-  background: gray;
+  background: rgb(241, 240, 240);
   width: 170px;
   height: 250px;
   opacity: 30%;
-  font-size: small;
   text-align: center;
-  color: #0c007a;
+  color: #b36710;
+  border-radius: 15px;
+  font-size: small;
+
 }
-
-
 /* Container principal do componente */
 .tanque-container {
   display: flex;
@@ -727,3 +727,54 @@ POPUP CAG
 .popup-box button:hover {
   background: #e00;
 }
+.campo {
+    display: flex;
+    gap: 5px;
+}
+
+input {
+    width: 60px;
+    text-align: center;
+    padding: 5px;
+    border: none;
+}
+#valvula_fancoil{
+  position: absolute;
+  top: -40px;
+  width: 80px;
+  left: 130px;
+  background: #2284e6;
+  font-size: 15px;
+  font-weight: bold;
+ 
+}
+#val-fan{
+  position: absolute;
+  top: -38px;
+  width: 180px;
+  left: 180px;
+  background: #2284e6;
+  font-weight: bold;
+
+}
+#bypass{
+  position: absolute;
+  top: 343px;
+  width: 80px;
+  left: 313px;
+  background: #2284e6;
+  font-size: 15px;
+  font-weight: bold;
+ 
+}
+#val_bypass{
+  position: absolute;
+  top: 343px;
+  width: 140px;
+  left: 360px;
+  background: #2284e6;
+  font-weight: bold;
+
+}
+
+
