@@ -5,208 +5,232 @@
     <meta charset="UTF-8">
     <title>Diagrama de Tubulação — CAG 01</title>
     <link rel="stylesheet" href="./index.css">
-    <script src="./index.js" defer></script>
+    <script src="./index.js" defer=""></script>
   </head>
 
   <body>
 
     <!-- ============================================================
-       PAINEL DE CONTROLE
-  ============================================================ -->
+         PAINEL DE CONTROLE
+    ============================================================ -->
     <div id="painel">
       <span>🖱️ Arrastar · Scroll = zoom</span>
       <div class="sep"></div>
       <button id="btn-reset">1:1</button>
       <button id="btn-fit">Ajustar tela</button>
       <div class="sep"></div>
+      <select id="componentes-menu">
+        <option value="">📚 Componentes</option>
+        <option value="chiller">Chiller</option>
+        <option value="bomba">Bombas centrífugas</option>
+        <option value="tanque">Tanque pulmão</option>
+        <option value="bypass">Válvula de by-pass</option>
+        <option value="servico">Válvulas de serviço</option>
+        <option value="bloqueio">Válvula de bloqueio</option>
+        <option value="balanceadora">Válvula balanceadora</option>
+        <option value="purgador">Purgador de ar</option>
+        <option value="filtro">Filtro Y</option>
+        <option value="manometro">Manômetros</option>
+        <option value="caixa">Caixa de Reposicão</option>
+        <option value="hidrometro">Hidrometro</option>
+        <option value="redutora">Valvula Redutora</option>
+        <option value="Registro">Registro de Bypass</option>
+        <option value="solenoide">Solenoide</option>
+      </select>
+      <div class="sep"></div>
       <span id="coords">x: 0 · y: 0</span>
       <span id="escala-label">zoom: 100%</span>
     </div>
 
     <!-- ============================================================
-       CANVAS — contém todos os elementos do diagrama
-  ============================================================ -->
+         CANVAS — contém todos os elementos do diagrama
+    ============================================================ -->
     <div id="canvas">
 
       <!-- ======================================================
-         BIBLIOTECA SVG — symbols e gradientes (definida 1×)
-    ====================================================== -->
+           BIBLIOTECA SVG — symbols e gradientes (definida 1×)
+      ====================================================== -->
       <svg width="0" height="0" style="position:absolute;">
         <defs>
 
           <!-- Gradiente supply (laranja) — vertical -->
           <linearGradient id="gs-v" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#8b4820"></stop>
-            <stop offset="30%" stop-color="#e8a068"></stop>
-            <stop offset="50%" stop-color="#f0b080"></stop>
-            <stop offset="70%" stop-color="#e8a068"></stop>
+            <stop offset="0%"   stop-color="#8b4820"></stop>
+            <stop offset="30%"  stop-color="#e8a068"></stop>
+            <stop offset="50%"  stop-color="#f0b080"></stop>
+            <stop offset="70%"  stop-color="#e8a068"></stop>
             <stop offset="100%" stop-color="#8b4820"></stop>
           </linearGradient>
 
           <!-- Gradiente supply (laranja) — horizontal -->
           <linearGradient id="gs-h" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#8b4820"></stop>
-            <stop offset="30%" stop-color="#e8a068"></stop>
-            <stop offset="50%" stop-color="#f0b080"></stop>
-            <stop offset="70%" stop-color="#e8a068"></stop>
+            <stop offset="0%"   stop-color="#8b4820"></stop>
+            <stop offset="30%"  stop-color="#e8a068"></stop>
+            <stop offset="50%"  stop-color="#f0b080"></stop>
+            <stop offset="70%"  stop-color="#e8a068"></stop>
             <stop offset="100%" stop-color="#8b4820"></stop>
           </linearGradient>
 
           <!-- Gradiente supply — flange -->
           <linearGradient id="gs-fl" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#c87a3e"></stop>
-            <stop offset="50%" stop-color="#e8a068"></stop>
+            <stop offset="0%"   stop-color="#c87a3e"></stop>
+            <stop offset="50%"  stop-color="#e8a068"></stop>
             <stop offset="100%" stop-color="#a55828"></stop>
           </linearGradient>
 
           <!-- Gradiente retorno (azul) — vertical -->
           <linearGradient id="gr-v" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#2a4260"></stop>
-            <stop offset="30%" stop-color="#6a92b8"></stop>
-            <stop offset="50%" stop-color="#7aaacc"></stop>
-            <stop offset="70%" stop-color="#6a92b8"></stop>
+            <stop offset="0%"   stop-color="#2a4260"></stop>
+            <stop offset="30%"  stop-color="#6a92b8"></stop>
+            <stop offset="50%"  stop-color="#7aaacc"></stop>
+            <stop offset="70%"  stop-color="#6a92b8"></stop>
             <stop offset="100%" stop-color="#2a4260"></stop>
           </linearGradient>
 
           <!-- Gradiente retorno (azul) — horizontal -->
           <linearGradient id="gr-h" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#2a4260"></stop>
-            <stop offset="30%" stop-color="#6a92b8"></stop>
-            <stop offset="50%" stop-color="#7aaacc"></stop>
-            <stop offset="70%" stop-color="#6a92b8"></stop>
+            <stop offset="0%"   stop-color="#2a4260"></stop>
+            <stop offset="30%"  stop-color="#6a92b8"></stop>
+            <stop offset="50%"  stop-color="#7aaacc"></stop>
+            <stop offset="70%"  stop-color="#6a92b8"></stop>
             <stop offset="100%" stop-color="#2a4260"></stop>
           </linearGradient>
 
           <!-- Gradiente retorno — flange -->
           <linearGradient id="gr-fl" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#4a6e8e"></stop>
-            <stop offset="50%" stop-color="#6a92b8"></stop>
+            <stop offset="0%"   stop-color="#4a6e8e"></stop>
+            <stop offset="50%"  stop-color="#6a92b8"></stop>
             <stop offset="100%" stop-color="#38587a"></stop>
           </linearGradient>
 
           <!-- Gradientes bomba (verde) -->
           <linearGradient id="grad-bomba" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop id="stop1" offset="0%" stop-color="#5fd97a"></stop>
-            <stop id="stop2" offset="40%" stop-color="#3cb85a"></stop>
-            <stop id="stop3" offset="70%" stop-color="#2a9444"></stop>
+            <stop id="stop1" offset="0%"   stop-color="#5fd97a"></stop>
+            <stop id="stop2" offset="40%"  stop-color="#3cb85a"></stop>
+            <stop id="stop3" offset="70%"  stop-color="#2a9444"></stop>
             <stop id="stop4" offset="100%" stop-color="#1f6e32"></stop>
           </linearGradient>
 
-
           <!-- Gradientes bomba (Vermelho) -->
           <linearGradient id="grad-bomba-vermelho" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ff6b6b"></stop>
-            <stop offset="40%" stop-color="#e74c3c"></stop>
-            <stop offset="70%" stop-color="#c0392b"></stop>
+            <stop offset="0%"   stop-color="#ff6b6b"></stop>
+            <stop offset="40%"  stop-color="#e74c3c"></stop>
+            <stop offset="70%"  stop-color="#c0392b"></stop>
             <stop offset="100%" stop-color="#922b21"></stop>
           </linearGradient>
 
           <linearGradient id="grad-flange-bomba" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#6fe88a"></stop>
-            <stop offset="50%" stop-color="#3cb85a"></stop>
+            <stop offset="0%"   stop-color="#6fe88a"></stop>
+            <stop offset="50%"  stop-color="#3cb85a"></stop>
             <stop offset="100%" stop-color="#1f6e32"></stop>
           </linearGradient>
 
           <linearGradient id="grad-eixo" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#c0c0c0"></stop>
-            <stop offset="50%" stop-color="#888"></stop>
+            <stop offset="0%"   stop-color="#c0c0c0"></stop>
+            <stop offset="50%"  stop-color="#888"></stop>
             <stop offset="100%" stop-color="#555"></stop>
           </linearGradient>
 
           <!-- Symbol: cotovelo supply -->
           <symbol id="cot-supply" viewBox="0 0 44 56">
             <path d="M 38 7 A 32 32 0 0 1 7 38 L 7 27 A 21 21 0 0 0 27 7 Z" fill="url(#gs-h)" stroke="#7a3f1a" stroke-width="1"></path>
-            <rect x="24" y="3" width="16" height="6" rx="1" fill="url(#gs-fl)" stroke="#7a3f1a" stroke-width="1"></rect>
-            <rect x="3" y="24" width="6" height="16" rx="1" fill="url(#gs-fl)" stroke="#7a3f1a" stroke-width="1"></rect>
+            <rect x="24" y="3"  width="16" height="6"  rx="1" fill="url(#gs-fl)" stroke="#7a3f1a" stroke-width="1"></rect>
+            <rect x="3"  y="24" width="6"  height="16" rx="1" fill="url(#gs-fl)" stroke="#7a3f1a" stroke-width="1"></rect>
           </symbol>
 
           <!-- Symbol: cotovelo retorno -->
           <symbol id="cot-retorno" viewBox="0 0 44 56">
             <path d="M 38 7 A 32 32 0 0 1 7 38 L 7 27 A 21 21 0 0 0 27 7 Z" fill="url(#gr-h)" stroke="#2a4260" stroke-width="1"></path>
-            <rect x="24" y="3" width="16" height="6" rx="1" fill="url(#gr-fl)" stroke="#2a4260" stroke-width="1"></rect>
-            <rect x="3" y="24" width="6" height="16" rx="1" fill="url(#gr-fl)" stroke="#2a4260" stroke-width="1"></rect>
+            <rect x="24" y="3"  width="16" height="6"  rx="1" fill="url(#gr-fl)" stroke="#2a4260" stroke-width="1"></rect>
+            <rect x="3"  y="24" width="6"  height="16" rx="1" fill="url(#gr-fl)" stroke="#2a4260" stroke-width="1"></rect>
           </symbol>
 
           <!-- Symbol: bomba (compacta 110×95) -->
           <symbol id="peca-bomba" viewBox="0 0 260 220">
-            <rect x="55" y="0" width="70" height="22" rx="2" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <circle cx="65" cy="11" r="2.5" fill="#1a3d20"></circle>
-            <circle cx="115" cy="11" r="2.5" fill="#1a3d20"></circle>
+            <rect x="55" y="0"   width="70" height="22" rx="2" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <circle cx="65"  cy="11"  r="2.5" fill="#1a3d20"></circle>
+            <circle cx="115" cy="11"  r="2.5" fill="#1a3d20"></circle>
             <path d="M 30 30 L 150 30 L 150 150 Q 150 175 125 175 L 60 175 Q 25 175 22 140 Q 20 100 30 70 Z" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1.5"></path>
-            <rect x="145" y="60" width="20" height="80" rx="2" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <rect x="55" y="55" width="75" height="75" rx="3" fill="#f5f5f5" stroke="#0f4a20" stroke-width="2"></rect>
-            <circle cx="62" cy="62" r="2" fill="#666"></circle>
-            <circle cx="123" cy="62" r="2" fill="#666"></circle>
-            <circle cx="62" cy="123" r="2" fill="#666"></circle>
+            <rect x="145" y="60"  width="20" height="80" rx="2" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <rect x="55"  y="55"  width="75" height="75" rx="3" fill="#f5f5f5" stroke="#0f4a20" stroke-width="2"></rect>
+            <circle cx="62"  cy="62"  r="2" fill="#666"></circle>
+            <circle cx="123" cy="62"  r="2" fill="#666"></circle>
+            <circle cx="62"  cy="123" r="2" fill="#666"></circle>
             <circle cx="123" cy="123" r="2" fill="#666"></circle>
-            <rect x="55" y="175" width="70" height="22" rx="2" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <circle cx="65" cy="186" r="2.5" fill="#1a3d20"></circle>
+            <rect x="55"  y="175" width="70" height="22" rx="2" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <circle cx="65"  cy="186" r="2.5" fill="#1a3d20"></circle>
             <circle cx="115" cy="186" r="2.5" fill="#1a3d20"></circle>
-            <rect x="70" y="197" width="40" height="15" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <rect x="165" y="92" width="15" height="16" fill="url(#grad-eixo)" stroke="#333" stroke-width="0.8"></rect>
-            <rect x="180" y="80" width="10" height="40" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
-            <rect x="190" y="75" width="60" height="50" rx="3" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <line x1="200" y1="78" x2="200" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <line x1="212" y1="78" x2="212" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <line x1="224" y1="78" x2="224" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <line x1="236" y1="78" x2="236" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <rect x="250" y="85" width="8" height="30" rx="2" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
-            <rect x="205" y="65" width="25" height="12" rx="1" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
+            <rect x="70"  y="197" width="40" height="15" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <rect x="165" y="92"  width="15" height="16" fill="url(#grad-eixo)" stroke="#333" stroke-width="0.8"></rect>
+            <rect x="180" y="80"  width="10" height="40" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
+            <rect x="190" y="75"  width="60" height="50" rx="3" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <line x1="200" y1="78"  x2="200" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <line x1="212" y1="78"  x2="212" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <line x1="224" y1="78"  x2="224" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <line x1="236" y1="78"  x2="236" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <rect x="250" y="85"  width="8"  height="30" rx="2" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
+            <rect x="205" y="65"  width="25" height="12" rx="1" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
           </symbol>
 
-          <!-- Symbol: bomba (compacta 110×95) -->
+          <!-- Symbol: bomba vermelha (compacta 110×95) -->
           <symbol id="peca-bomba-vermelha" viewBox="0 0 260 220">
-            <rect x="55" y="0" width="70" height="22" rx="2" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <circle cx="65" cy="11" r="2.5" fill="#1a3d20"></circle>
-            <circle cx="115" cy="11" r="2.5" fill="#1a3d20"></circle>
+            <rect x="55" y="0"   width="70" height="22" rx="2" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <circle cx="65"  cy="11"  r="2.5" fill="#1a3d20"></circle>
+            <circle cx="115" cy="11"  r="2.5" fill="#1a3d20"></circle>
             <path d="M 30 30 L 150 30 L 150 150 Q 150 175 125 175 L 60 175 Q 25 175 22 140 Q 20 100 30 70 Z" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.5"></path>
-            <rect x="145" y="60" width="20" height="80" rx="2" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <rect x="55" y="55" width="75" height="75" rx="3" fill="#f5f5f5" stroke="#0f4a20" stroke-width="2"></rect>
-            <circle cx="62" cy="62" r="2" fill="#666"></circle>
-            <circle cx="123" cy="62" r="2" fill="#666"></circle>
-            <circle cx="62" cy="123" r="2" fill="#666"></circle>
+            <rect x="145" y="60"  width="20" height="80" rx="2" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <rect x="55"  y="55"  width="75" height="75" rx="3" fill="#f5f5f5" stroke="#0f4a20" stroke-width="2"></rect>
+            <circle cx="62"  cy="62"  r="2" fill="#666"></circle>
+            <circle cx="123" cy="62"  r="2" fill="#666"></circle>
+            <circle cx="62"  cy="123" r="2" fill="#666"></circle>
             <circle cx="123" cy="123" r="2" fill="#666"></circle>
-            <rect x="55" y="175" width="70" height="22" rx="2" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <circle cx="65" cy="186" r="2.5" fill="#1a3d20"></circle>
+            <rect x="55"  y="175" width="70" height="22" rx="2" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <circle cx="65"  cy="186" r="2.5" fill="#1a3d20"></circle>
             <circle cx="115" cy="186" r="2.5" fill="#1a3d20"></circle>
-            <rect x="70" y="197" width="40" height="15" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <rect x="165" y="92" width="15" height="16" fill="url(#grad-eixo)" stroke="#333" stroke-width="0.8"></rect>
-            <rect x="180" y="80" width="10" height="40" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
-            <rect x="190" y="75" width="60" height="50" rx="3" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
-            <line x1="200" y1="78" x2="200" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <line x1="212" y1="78" x2="212" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <line x1="224" y1="78" x2="224" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <line x1="236" y1="78" x2="236" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
-            <rect x="250" y="85" width="8" height="30" rx="2" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
-            <rect x="205" y="65" width="25" height="12" rx="1" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
+            <rect x="70"  y="197" width="40" height="15" fill="url(#grad-flange-bomba)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <rect x="165" y="92"  width="15" height="16" fill="url(#grad-eixo)" stroke="#333" stroke-width="0.8"></rect>
+            <rect x="180" y="80"  width="10" height="40" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
+            <rect x="190" y="75"  width="60" height="50" rx="3" fill="url(#grad-bomba-vermelho)" stroke="#0f4a20" stroke-width="1.2"></rect>
+            <line x1="200" y1="78"  x2="200" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <line x1="212" y1="78"  x2="212" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <line x1="224" y1="78"  x2="224" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <line x1="236" y1="78"  x2="236" y2="122" stroke="#0f4a20" stroke-width="0.8"></line>
+            <rect x="250" y="85"  width="8"  height="30" rx="2" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
+            <rect x="205" y="65"  width="25" height="12" rx="1" fill="url(#grad-bomba)" stroke="#0f4a20" stroke-width="1"></rect>
           </symbol>
 
         </defs>
       </svg>
-      <!-- ==========BOMBAS (01–06)================ -->
-      <div class="bomba" id="bomba-1" style="top:494px; left:250px;"><svg viewBox="0 0 260 220">
-          <use href="#peca-bomba"></use>
-        </svg><span class="num">01</span></div>
-      <div class="bomba" id="bomba-2" style="top:494px; left:320px;"><svg viewBox="0 0 260 220">
-          <use href="#peca-bomba"></use>
-        </svg><span class="num">02</span></div>
-      <div class="bomba" id="bomba-3" style="top:494px; left:390px;"><svg viewBox="0 0 260 220">
-          <use href="#peca-bomba"></use>
-        </svg><span class="num">03</span></div>
-      <div class="bomba" id="bomba-4" style="top:494px; left:460px;"><svg viewBox="0 0 260 220">
-          <use href="#peca-bomba"></use>
-        </svg><span class="num">04</span></div>
-      <div class="bomba" id="bomba-5" style="top:494px; left:530px;"><svg viewBox="0 0 260 220">
-          <use href="#peca-bomba"></use>
-        </svg><span class="num">05</span></div>
-      <div class="bomba" id="bomba-6" style="top:494px; left:600px;"><svg viewBox="0 0 260 220">
-          <use href="#peca-bomba"></use>
-        </svg><span class="num">06</span></div>
 
+      <!-- ==========BOMBAS (01–06)================ -->
+      <div class="bomba" id="bomba-1" style="top:494px; left:250px;">
+        <svg viewBox="0 0 260 220"><use href="#peca-bomba"></use></svg>
+        <span class="num">01</span>
+      </div>
+      <div class="bomba" id="bomba-2" style="top:494px; left:320px;">
+        <svg viewBox="0 0 260 220"><use href="#peca-bomba"></use></svg>
+        <span class="num">02</span>
+      </div>
+      <div class="bomba" id="bomba-3" style="top:494px; left:390px;">
+        <svg viewBox="0 0 260 220"><use href="#peca-bomba"></use></svg>
+        <span class="num">03</span>
+      </div>
+      <div class="bomba" id="bomba-4" style="top:494px; left:460px;">
+        <svg viewBox="0 0 260 220"><use href="#peca-bomba"></use></svg>
+        <span class="num">04</span>
+      </div>
+      <div class="bomba" id="bomba-5" style="top:494px; left:530px;">
+        <svg viewBox="0 0 260 220"><use href="#peca-bomba"></use></svg>
+        <span class="num">05</span>
+      </div>
+      <div class="bomba" id="bomba-6" style="top:494px; left:600px;">
+        <svg viewBox="0 0 260 220"><use href="#peca-bomba"></use></svg>
+        <span class="num">06</span>
+      </div>
 
       <div class="tubuacao_antes_da_bomba">
 
-        <!-- Tubo reto horizontal-->
+        <!-- Tubo reto horizontal -->
         <div class="tubo-horizontal supply fluxo-dir" id="sh-1" style="top:436px; left:187px; width:62px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
@@ -247,7 +271,7 @@
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-esq" id="sh-9" style="top:377px; left:145px; width:100px;">
+        <div class="tubo-horizontal supply fluxo-esq" id="sh-9"  style="top:377px; left:145px; width:100px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
@@ -283,7 +307,7 @@
           <div class="flange flange-dir"></div>
         </div>
 
-        <!-- Tubo reto vertical-->
+        <!-- Tubo reto vertical -->
         <div class="tubo-vertical supply fluxo-baixo" id="sh-16" style="top:465px; left:260px; height:55px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
@@ -345,39 +369,39 @@
           <div class="flange flange-bot"></div>
         </div>
 
-        <!-- Tubo Tipo Cotuvelo-->
-        <svg class="cotovelo" style="top:406px; left:100px; transform:rotate(90deg);">
+        <!-- Tubo Tipo Cotovelo -->
+        <svg class="cotovelo" style="top:406px; left:100px;  transform:rotate(90deg);">
           <use href="#cot-supply"></use>
         </svg>
-        <svg class="cotovelo" style="top:362px; left:106px; transform:rotate(180deg);">
+        <svg class="cotovelo" style="top:362px; left:106px;  transform:rotate(180deg);">
           <use href="#cot-supply"></use>
         </svg>
-        <svg class="cotovelo" style="top:368px; left:920px; transform:rotate(270deg);">
+        <svg class="cotovelo" style="top:368px; left:920px;  transform:rotate(270deg);">
           <use href="#cot-supply"></use>
         </svg>
-        <svg class="cotovelo" style="top:412px; left:914px; transform:rotate(0deg);">
+        <svg class="cotovelo" style="top:412px; left:914px;  transform:rotate(0deg);">
           <use href="#cot-supply"></use>
         </svg>
-        <svg class="cotovelo" style="top:43px; left:277px; transform:rotate(270deg);">
+        <svg class="cotovelo" style="top:43px;  left:277px;  transform:rotate(270deg);">
           <use href="#cot-supply"></use>
         </svg> <!-- Cotovelo CT01 -->
-        <svg class="cotovelo" style="top:38px; left:154px; transform:rotate(180deg);">
+        <svg class="cotovelo" style="top:38px;  left:154px;  transform:rotate(180deg);">
           <use href="#cot-supply"></use>
         </svg> <!-- Cotovelo CT01 -->
-        <svg class="cotovelo" style="top:38px; left:508px; transform:rotate(180deg);">
+        <svg class="cotovelo" style="top:38px;  left:508px;  transform:rotate(180deg);">
           <use href="#cot-supply"></use>
         </svg> <!-- Cotovelo CT02 -->
-        <svg class="cotovelo" style="top:43px; left:632px; transform:rotate(270deg);">
+        <svg class="cotovelo" style="top:43px;  left:632px;  transform:rotate(270deg);">
           <use href="#cot-supply"></use>
         </svg> <!-- Cotovelo CT02 -->
-        <svg class="cotovelo" style="top:38px; left:744px; transform:rotate(180deg);">
+        <svg class="cotovelo" style="top:38px;  left:744px;  transform:rotate(180deg);">
           <use href="#cot-supply"></use>
         </svg> <!-- Cotovelo CT04 -->
-        <svg class="cotovelo" style="top:43px; left:869px; transform:rotate(270deg);">
+        <svg class="cotovelo" style="top:43px;  left:869px;  transform:rotate(270deg);">
           <use href="#cot-supply"></use>
         </svg> <!-- Cotovelo CT04 -->
 
-        <!-- Tubo Iipo T-->
+        <!-- Tubo Tipo T -->
         <div class="te te-baixo supply" style="top:425px; left:249px;">
           <div class="principal"></div>
           <div class="derivacao"></div>
@@ -482,8 +506,9 @@
       </div>
 
       <div class="tubuacao_depois_da_bomba">
-        <!-- Tubo reto horizontal-->
-        <div class="tubo-horizontal supply fluxo-esq" id="sh-28" style="top:571px; left:168px;  width:81px;">
+
+        <!-- Tubo reto horizontal -->
+        <div class="tubo-horizontal supply fluxo-esq" id="sh-28" style="top:571px; left:168px; width:81px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
@@ -493,27 +518,27 @@
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-esq" id="sh-30" style="top:571px; left:360px; width:30px; ">
+        <div class="tubo-horizontal supply fluxo-esq" id="sh-30" style="top:571px; left:360px; width:30px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-esq" id="sh-31" style="top:571px; left:430px; width:30px; ">
+        <div class="tubo-horizontal supply fluxo-esq" id="sh-31" style="top:571px; left:430px; width:30px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-esq" id="sh-32" style="top:571px; left:500px; width:30px; ">
+        <div class="tubo-horizontal supply fluxo-esq" id="sh-32" style="top:571px; left:500px; width:30px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-esq" id="sh-33" style="top:571px; left:570px; width:30px; ">
+        <div class="tubo-horizontal supply fluxo-esq" id="sh-33" style="top:571px; left:570px; width:30px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply " id="sh-34" style="top:571px; left:640px; width:345px;">
+        <div class="tubo-horizontal supply" id="sh-34" style="top:571px; left:640px; width:345px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
@@ -523,53 +548,53 @@
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-dir" id="sh-36" style="top:629px; left:640px; width:80px; ">
+        <div class="tubo-horizontal supply fluxo-dir" id="sh-36" style="top:629px; left:640px; width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-dir" id="sh-37" style="top:629px; left:520px; width:80px; ">
+        <div class="tubo-horizontal supply fluxo-dir" id="sh-37" style="top:629px; left:520px; width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-dir" id="sh-38" style="top:629px; left:400px; width:80px; ">
+        <div class="tubo-horizontal supply fluxo-dir" id="sh-38" style="top:629px; left:400px; width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-dir" id="sh-39" style="top:629px; left:280px; width:80px; ">
+        <div class="tubo-horizontal supply fluxo-dir" id="sh-39" style="top:629px; left:280px; width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-dir" id="sh-40" style="top:629px; left:159px; width:80px; ">
+        <div class="tubo-horizontal supply fluxo-dir" id="sh-40" style="top:629px; left:159px; width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply fluxo-dir" id="sh-41" style="top:629px; left:88px;  width:31px; ">
+        <div class="tubo-horizontal supply fluxo-dir" id="sh-41" style="top:629px; left:88px;  width:31px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
         </div>
-        <div class="tubo-horizontal supply " id="sh-42" style="top:571px; left:88px;  width:80px;">
+        <div class="tubo-horizontal supply" id="sh-42" style="top:571px; left:88px;  width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
-        </div><!-- Tubulação Valvula01-->
+        </div> <!-- Tubulação Valvula01 -->
         <div class="tubo-horizontal supply" id="sh-43" style="top:629px; left:904px; width:80px;">
           <div class="flange flange-esq"></div>
           <div class="corpo"></div>
           <div class="flange flange-dir"></div>
-        </div><!-- Tubulação Valvula02-->
+        </div> <!-- Tubulação Valvula02 -->
 
-        <!-- Tubo reto vertical-->
+        <!-- Tubo reto vertical -->
         <div class="tubo-vertical supply fluxo-baixo" id="sh-44" style="top:659px; left:131px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL01-->
+        </div> <!-- Tubo que sai do RL01 -->
         <div class="tubo-vertical supply fluxo-baixo" id="sh-45" style="top:659px; left:251px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
@@ -596,11 +621,11 @@
           <div class="flange flange-bot"></div>
         </div>
 
-        <!-- Tubo Tipo Cotuvelo-->
-        <svg class="cotovelo" style="top:600px; left:42px; transform:rotate(90deg);">
+        <!-- Tubo Tipo Cotovelo -->
+        <svg class="cotovelo" style="top:600px; left:42px;  transform:rotate(90deg);">
           <use href="#cot-supply"></use>
         </svg>
-        <svg class="cotovelo" style="top:555px; left:48px; transform:rotate(180deg);">
+        <svg class="cotovelo" style="top:555px; left:48px;  transform:rotate(180deg);">
           <use href="#cot-supply"></use>
         </svg>
         <svg class="cotovelo" style="top:561px; left:986px; transform:rotate(270deg);">
@@ -610,7 +635,7 @@
           <use href="#cot-supply"></use>
         </svg>
 
-        <!-- Tubo Iipo T-->
+        <!-- Tubo Tipo T -->
         <div class="te te-baixo supply" style="top:618px; left:120px;">
           <div class="principal"></div>
           <div class="derivacao"></div>
@@ -700,113 +725,112 @@
 
       <div class="tubulação_entrada_saida_chiller">
 
-        <!--Tubo tipo reto vertical-->
+        <!-- Tubo reto vertical -->
         <div class="tubo-vertical retorno fluxo-baixo" id="sh-50" style="top:769px; left:131px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL01-->
-        <div class="tubo-vertical retorno fluxo-cima" id="sh-51" style="top:710px; left:190px; height:170px;">
+        </div> <!-- Tubo que sai do RL01 -->
+        <div class="tubo-vertical retorno fluxo-cima"  id="sh-51" style="top:710px; left:190px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL01-->
+        </div> <!-- Tubo que sai do RL01 -->
         <div class="tubo-vertical retorno fluxo-baixo" id="sh-52" style="top:769px; left:251px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL02-->
-        <div class="tubo-vertical retorno fluxo-cima" id="sh-53" style="top:710px; left:311px; height:170px;">
+        </div> <!-- Tubo que sai do RL02 -->
+        <div class="tubo-vertical retorno fluxo-cima"  id="sh-53" style="top:710px; left:311px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL02-->
+        </div> <!-- Tubo que sai do RL02 -->
         <div class="tubo-vertical retorno fluxo-baixo" id="sh-54" style="top:769px; left:371px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL03-->
-        <div class="tubo-vertical retorno fluxo-cima" id="sh-55" style="top:710px; left:431px; height:170px;">
+        </div> <!-- Tubo que sai do RL03 -->
+        <div class="tubo-vertical retorno fluxo-cima"  id="sh-55" style="top:710px; left:431px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL03-->
+        </div> <!-- Tubo que sai do RL03 -->
         <div class="tubo-vertical retorno fluxo-baixo" id="sh-56" style="top:769px; left:492px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL04-->
-        <div class="tubo-vertical retorno fluxo-cima" id="sh-57" style="top:710px; left:553px; height:170px;">
+        </div> <!-- Tubo que sai do RL04 -->
+        <div class="tubo-vertical retorno fluxo-cima"  id="sh-57" style="top:710px; left:553px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL04-->
+        </div> <!-- Tubo que sai do RL04 -->
         <div class="tubo-vertical retorno fluxo-baixo" id="sh-58" style="top:769px; left:610px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL05-->
-        <div class="tubo-vertical retorno fluxo-cima" id="sh-59" style="top:710px; left:668px; height:170px;">
+        </div> <!-- Tubo que sai do RL05 -->
+        <div class="tubo-vertical retorno fluxo-cima"  id="sh-59" style="top:710px; left:668px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL05-->
+        </div> <!-- Tubo que sai do RL05 -->
         <div class="tubo-vertical retorno fluxo-parado" id="sh-60" style="top:769px; left:732px; height:110px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL05-->
+        </div> <!-- Tubo que sai do RL05 -->
         <div class="tubo-vertical retorno fluxo-parado" id="sh-61" style="top:710px; left:792px; height:170px;">
           <div class="flange flange-top"></div>
           <div class="corpo"></div>
           <div class="flange flange-bot"></div>
-        </div> <!-- Tubo que sai do RL05-->
+        </div> <!-- Tubo que sai do RL05 -->
 
-        <!--Tubo reto cutuvelo-->
-
+        <!-- Tubo reto cotovelo -->
         <svg class="cotovelo" style="top:870px; left:123px; transform:rotate(90deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL01-->
+        </svg> <!-- Tubo que sai do RL01 -->
         <svg class="cotovelo" style="top:876px; left:167px; transform:rotate(0deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL01-->
+        </svg> <!-- Tubo que sai do RL01 -->
 
         <svg class="cotovelo" style="top:870px; left:243px; transform:rotate(90deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL02-->
+        </svg> <!-- Tubo que sai do RL02 -->
         <svg class="cotovelo" style="top:876px; left:288px; transform:rotate(0deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL02-->
+        </svg> <!-- Tubo que sai do RL02 -->
 
         <svg class="cotovelo" style="top:870px; left:363px; transform:rotate(90deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL03-->
+        </svg> <!-- Tubo que sai do RL03 -->
         <svg class="cotovelo" style="top:876px; left:408px; transform:rotate(0deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL03-->
+        </svg> <!-- Tubo que sai do RL03 -->
 
         <svg class="cotovelo" style="top:870px; left:484px; transform:rotate(90deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL04-->
+        </svg> <!-- Tubo que sai do RL04 -->
         <svg class="cotovelo" style="top:876px; left:530px; transform:rotate(0deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL04-->
+        </svg> <!-- Tubo que sai do RL04 -->
 
         <svg class="cotovelo" style="top:870px; left:602px; transform:rotate(90deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL05-->
+        </svg> <!-- Tubo que sai do RL05 -->
         <svg class="cotovelo" style="top:876px; left:645px; transform:rotate(0deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL05-->
+        </svg> <!-- Tubo que sai do RL05 -->
 
         <svg class="cotovelo" style="top:870px; left:723px; transform:rotate(90deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL06-->
+        </svg> <!-- Tubo que sai do RL06 -->
         <svg class="cotovelo" style="top:876px; left:768px; transform:rotate(0deg);">
           <use href="#cot-retorno"></use>
-        </svg> <!-- Tubo que sai do RL06-->
+        </svg> <!-- Tubo que sai do RL06 -->
 
-        <!--Tubo reto TE-->
+        <!-- Tubo reto T -->
         <div class="te te-baixo retorno" style="top:670px; left:179px;">
           <div class="principal"></div>
           <div class="derivacao"></div>
@@ -853,14 +877,14 @@
 
 
       <!-- ======================================================
-         TUBOS HORIZONTAIS — Retorno (azul)
-    ====================================================== -->
-      <div class="tubo-horizontal retorno fluxo-dir" id="sh-62" style="top:480px; left:40px; width:800px;">
+           TUBOS HORIZONTAIS — Retorno (azul)
+      ====================================================== -->
+      <div class="tubo-horizontal retorno fluxo-dir" id="sh-62" style="top:480px; left:40px;  width:800px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-63" style="top:316px; left:148px; width:96px; ">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-63" style="top:316px; left:148px; width:96px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
@@ -890,7 +914,7 @@
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-69" style="top:396px; left:1020px; width:95px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-69"  style="top:396px; left:1020px; width:95px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
@@ -905,12 +929,12 @@
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno" id="sh-71" style="top:480px; left:880px; width:92px;">
+      <div class="tubo-horizontal retorno"             id="sh-71" style="top:480px; left:880px;  width:92px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-dir" id="sh-72" style="top:530px; left:888px; width:313px;">
+      <div class="tubo-horizontal retorno fluxo-dir" id="sh-72" style="top:530px; left:888px;  width:313px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
@@ -925,80 +949,81 @@
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-75" style="top:680px; left:42px; width:138px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-75" style="top:680px; left:42px;   width:138px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-76" style="top:680px; left:219px; width:82px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-76" style="top:680px; left:219px;  width:82px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-77" style="top:680px; left:341px; width:79px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-77" style="top:680px; left:341px;  width:79px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-78" style="top:680px; left:459px; width:85px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-78" style="top:680px; left:459px;  width:85px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-79" style="top:680px; left:580px; width:77px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-79" style="top:680px; left:580px;  width:77px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-esq" id="sh-80" style="top:680px; left:696px; width:85px;">
+      <div class="tubo-horizontal retorno fluxo-esq" id="sh-80" style="top:680px; left:696px;  width:85px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
-      <div class="tubo-horizontal retorno fluxo-dir" id="sh-81" style="top:680px; left:820px; width:225px;">
+      <div class="tubo-horizontal retorno fluxo-dir" id="sh-81" style="top:680px; left:820px;  width:225px;">
         <div class="flange flange-esq"></div>
         <div class="corpo"></div>
         <div class="flange flange-dir"></div>
       </div>
+
       <!-- ======================================================
-         TUBOS VERTICAIS — Retorno (azul)
-    ====================================================== -->
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-82" style="top:518px; left:3px; height:140px;">
+           TUBOS VERTICAIS — Retorno (azul)
+      ====================================================== -->
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-82" style="top:518px; left:3px;    height:140px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-83" style="top:354px; left:991px; height:31px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-83" style="top:354px; left:991px;  height:31px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-84" style="top:425px; left:991px; height:35px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-84" style="top:425px; left:991px;  height:35px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-baixo" id="sh-85" style="top:345px; left:256px; height:22px;">
+      <div class="tubo-vertical retorno fluxo-baixo" id="sh-85" style="top:345px; left:256px;  height:22px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-baixo" id="sh-86" style="top:345px; left:710px; height:22px;">
+      <div class="tubo-vertical retorno fluxo-baixo" id="sh-86" style="top:345px; left:710px;  height:22px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno" id="sh-87" style="top:295px; left:1063px; height: 140px;">
+      <div class="tubo-vertical retorno"            id="sh-87" style="top:295px; left:1063px; height:140px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno" id="sh-88" style="top:430px; left:1063px; height: 80px;">
+      <div class="tubo-vertical retorno"            id="sh-88" style="top:430px; left:1063px; height:80px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-89" style="top:509px; left:1063px; height: 152px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-89" style="top:509px; left:1063px; height:152px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
@@ -1008,91 +1033,91 @@
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-91" style="top:125px; left:197px; height:182px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-91" style="top:125px; left:197px;  height:182px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-92" style="top:125px; left:256px; height:125px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-92" style="top:125px; left:256px;  height:125px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-93" style="top:125px; left:611px; height:182px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-93" style="top:125px; left:611px;  height:182px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-94" style="top:125px; left:553px; height:125px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-94" style="top:125px; left:553px;  height:125px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-95" style="top:125px; left:847px; height:182px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-95" style="top:125px; left:847px;  height:182px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
-      <div class="tubo-vertical retorno fluxo-cima" id="sh-96" style="top:125px; left:787px; height:125px;">
+      <div class="tubo-vertical retorno fluxo-cima" id="sh-96" style="top:125px; left:787px;  height:125px;">
         <div class="flange flange-top"></div>
         <div class="corpo"></div>
         <div class="flange flange-bot"></div>
       </div>
 
       <!-- ======================================================
-         COTOVELOS — Retorno (azul)
-    ====================================================== -->
-      <svg class="cotovelo" style="top:465px; left:0px; transform:rotate(180deg);">
+           COTOVELOS — Retorno (azul)
+      ====================================================== -->
+      <svg class="cotovelo" style="top:465px; left:0px;    transform:rotate(180deg);">
         <use href="#cot-retorno"></use>
       </svg>
-      <svg class="cotovelo" style="top:650px; left:-5px; transform:rotate(90deg);">
+      <svg class="cotovelo" style="top:650px; left:-5px;   transform:rotate(90deg);">
         <use href="#cot-retorno"></use>
       </svg>
-      <svg class="cotovelo" style="top:457px; left:968px; transform:rotate(0deg);">
+      <svg class="cotovelo" style="top:457px; left:968px;  transform:rotate(0deg);">
         <use href="#cot-retorno"></use>
       </svg>
       <svg class="cotovelo" style="top:657px; left:1040px; transform:rotate(0deg);">
         <use href="#cot-retorno"></use>
       </svg>
-      <svg class="cotovelo" style="top:308px; left:973px; transform:rotate(270deg);">
+      <svg class="cotovelo" style="top:308px; left:973px;  transform:rotate(270deg);">
         <use href="#cot-retorno"></use>
       </svg>
-      <svg class="cotovelo" style="top:287px; left:100px; transform:rotate(90deg);">
+      <svg class="cotovelo" style="top:287px; left:100px;  transform:rotate(90deg);">
         <use href="#cot-retorno"></use>
       </svg>
-      <svg class="cotovelo" style="top:243px; left:105px; transform:rotate(180deg);">
+      <svg class="cotovelo" style="top:243px; left:105px;  transform:rotate(180deg);">
         <use href="#cot-retorno"></use>
       </svg>
       <svg class="cotovelo" style="top:249px; left:1045px; transform:rotate(270deg);">
         <use href="#cot-retorno"></use>
       </svg>
-      <svg class="cotovelo" style="top:80px; left:239px; transform:rotate(270deg);">
+      <svg class="cotovelo" style="top:80px;  left:239px;  transform:rotate(270deg);">
         <use href="#cot-retorno"></use>
       </svg> <!-- Cotovelo CT01 -->
-      <svg class="cotovelo" style="top:74px; left:194px; transform:rotate(180deg);">
+      <svg class="cotovelo" style="top:74px;  left:194px;  transform:rotate(180deg);">
         <use href="#cot-retorno"></use>
-      </svg><!-- Cotovelo CT01 -->
-      <svg class="cotovelo" style="top:80px; left:594px; transform:rotate(270deg);">
+      </svg> <!-- Cotovelo CT01 -->
+      <svg class="cotovelo" style="top:80px;  left:594px;  transform:rotate(270deg);">
         <use href="#cot-retorno"></use>
       </svg> <!-- Cotovelo CT02 -->
-      <svg class="cotovelo" style="top:74px; left:550px; transform:rotate(180deg);">
+      <svg class="cotovelo" style="top:74px;  left:550px;  transform:rotate(180deg);">
         <use href="#cot-retorno"></use>
-      </svg><!-- Cotovelo CT02 -->
-      <svg class="cotovelo" style="top:80px; left:829px; transform:rotate(270deg);">
+      </svg> <!-- Cotovelo CT02 -->
+      <svg class="cotovelo" style="top:80px;  left:829px;  transform:rotate(270deg);">
         <use href="#cot-retorno"></use>
       </svg> <!-- Cotovelo CT04 -->
-      <svg class="cotovelo" style="top:74px; left:784px; transform:rotate(180deg);">
+      <svg class="cotovelo" style="top:74px;  left:784px;  transform:rotate(180deg);">
         <use href="#cot-retorno"></use>
-      </svg><!-- Cotovelo CT04 -->
-      <svg class="cotovelo" style="top:500px; left:842px; transform:rotate(90deg);">
+      </svg> <!-- Cotovelo CT04 -->
+      <svg class="cotovelo" style="top:500px; left:842px;  transform:rotate(90deg);">
         <use href="#cot-retorno"></use>
-      </svg><!-- Cotovelo tanque -->
+      </svg> <!-- Cotovelo tanque -->
       <svg class="cotovelo" style="top:506px; left:1400px;">
         <use href="#cot-retorno"></use>
-      </svg><!-- Cotovelo tanque -->
+      </svg> <!-- Cotovelo tanque -->
       <svg class="cotovelo" style="top:215px; left:1405px; transform:rotate(270deg);">
         <use href="#cot-retorno"></use>
-      </svg><!-- Cotovelo tanque -->
+      </svg> <!-- Cotovelo tanque -->
 
 
       <!-- TÊS — Retorno (┬ para baixo) -->
@@ -1130,48 +1155,48 @@
         <div class="flange flange-1"></div>
         <div class="flange flange-2"></div>
         <div class="flange flange-3"></div>
-      </div><!--Corredor Tec 02 -->
+      </div> <!--Corredor Tec 02 -->
       <div class="te te-cima retorno" style="top:305px; left:601px;">
         <div class="principal"></div>
         <div class="derivacao"></div>
         <div class="flange flange-1"></div>
         <div class="flange flange-2"></div>
         <div class="flange flange-3"></div>
-      </div><!--Corredor Tec 02 -->
+      </div> <!--Corredor Tec 02 -->
       <div class="te te-cima retorno" style="top:247px; left:777px;">
         <div class="principal"></div>
         <div class="derivacao"></div>
         <div class="flange flange-1"></div>
         <div class="flange flange-2"></div>
         <div class="flange flange-3"></div>
-      </div><!--Corredor Tec 04 -->
+      </div> <!--Corredor Tec 04 -->
       <div class="te te-cima retorno" style="top:305px; left:835px;">
         <div class="principal"></div>
         <div class="derivacao"></div>
         <div class="flange flange-1"></div>
         <div class="flange flange-2"></div>
         <div class="flange flange-3"></div>
-      </div><!--Corredor Tec 04 -->
+      </div> <!--Corredor Tec 04 -->
       <div class="te te-cima retorno" style="top:385px; left:980px; transform: rotate(90deg)">
         <div class="principal"></div>
         <div class="derivacao"></div>
         <div class="flange flange-1"></div>
         <div class="flange flange-2"></div>
         <div class="flange flange-3"></div>
-      </div><!--Tanque-->
+      </div> <!--Tanque -->
       <div class="te te-baixo retorno" style="top:469px; left:840px">
         <div class="principal"></div>
         <div class="derivacao"></div>
         <div class="flange flange-1"></div>
         <div class="flange flange-2"></div>
         <div class="flange flange-3"></div>
-      </div><!--Tanque-->
+      </div> <!--Tanque -->
 
 
       <!-- ======================================================
-         VÁLVULAS (clique para abrir/fechar)
-    ====================================================== -->
-      <div class="valvula" id="valvula_1" style="position:absolute; top:564px; left:120px;">
+           VÁLVULAS (clique para abrir/fechar)
+      ====================================================== -->
+      <div class="valvula"          id="valvula_1" style="position:absolute; top:564px; left:120px;">
         <div class="corpo1">
           <div class="volante">
             <div class="raio"></div>
@@ -1181,7 +1206,7 @@
           </div>
         </div>
       </div>
-      <div class="valvula fechada" id="valvula_2" style="position:absolute; top:619px; left:935px;">
+      <div class="valvula fechada"  id="valvula_2" style="position:absolute; top:619px; left:935px;">
         <div class="corpo1">
           <div class="volante">
             <div class="raio"></div>
@@ -1191,7 +1216,7 @@
           </div>
         </div>
       </div>
-      <div class="valvula fechada" id="valvula_3" style="position:absolute; top:470px; left:920px;">
+      <div class="valvula fechada"  id="valvula_3" style="position:absolute; top:470px; left:920px;">
         <div class="corpo1">
           <div class="volante">
             <div class="raio"></div>
@@ -1201,7 +1226,7 @@
           </div>
         </div>
       </div>
-      <div class="valvula fechada" id="valvula_4" style="position:absolute; top:450px; left:1063px;">
+      <div class="valvula fechada"  id="valvula_4" style="position:absolute; top:450px; left:1063px;">
         <div class="corpo1">
           <div class="volante">
             <div class="raio"></div>
@@ -1211,7 +1236,7 @@
           </div>
         </div>
       </div>
-      <div class="valvula" id="valvula_5" style="position:absolute; top:385px; left:1150px;">
+      <div class="valvula"          id="valvula_5" style="position:absolute; top:385px; left:1150px;">
         <div class="corpo1">
           <div class="volante">
             <div class="raio"></div>
@@ -1221,7 +1246,7 @@
           </div>
         </div>
       </div>
-      <div class="valvula" id="valvula_6" style="position:absolute; top:520px; left:1230px;">
+      <div class="valvula"          id="valvula_6" style="position:absolute; top:520px; left:1230px;">
         <div class="corpo1">
           <div class="volante">
             <div class="raio"></div>
@@ -1273,7 +1298,6 @@
 
       <!-- Chiller 01- Tamanho padrão -->
       <div class="fachada" id="chiller01" style="--largura: 65px; --altura: 120px; top:730px; left: 120px; transform: rotate(180deg);">
-
         <div class="conteudo">
           <div class="coluna-esquerda">
             <div class="quadrado-branco"></div>
@@ -1296,10 +1320,8 @@
         </div>
       </div>
 
-
       <!-- Chiller 02- Tamanho padrão -->
       <div class="fachada" id="chiller02" style="--largura: 65px; --altura: 120px; top:610px; left: 243px; transform: rotate(180deg);">
-
         <div class="conteudo">
           <div class="coluna-esquerda">
             <div class="quadrado-branco"></div>
@@ -1324,7 +1346,6 @@
 
       <!-- Chiller 03- Tamanho padrão -->
       <div class="fachada" id="chiller03" style="--largura: 65px; --altura: 120px; top:490px; left: 363px; transform: rotate(180deg);">
-
         <div class="conteudo">
           <div class="coluna-esquerda">
             <div class="quadrado-branco"></div>
@@ -1349,7 +1370,6 @@
 
       <!-- Chiller 04- Tamanho padrão -->
       <div class="fachada" id="chiller04" style="--largura: 65px; --altura: 120px; top:370px; left: 484px; transform: rotate(180deg);">
-
         <div class="conteudo">
           <div class="coluna-esquerda">
             <div class="quadrado-branco"></div>
@@ -1420,23 +1440,41 @@
         </div>
       </div>
 
-        <div class="campo">
-            <input type="number" id="valvula_fancoil" value="75" oninput="atualizar()">
-            <label id='val-fan'>% Valvulas Fancoil</label>
-        </div>
+      <div class="campo">
+        <input type="number" id="valvula_fancoil" value="75" oninput="atualizar()">
+        <label id="val-fan">% Valvulas Fancoil</label>
+      </div>
 
-        <div class="campo">
-            <input type="number" id="bypass" value="25" readonly>
-            <label id='val_bypass'>% Valvula Bypass</label>
-        </div>
+      <div class="campo">
+        <input type="number" id="bypass" value="25" readonly="">
+        <label id="val_bypass">% Valvula Bypass</label>
+      </div>
 
-    </div><!-- /#canvas -->
+    </div> <!-- /#canvas -->
 
     <div id="popup-cag" class="popup-cag hidden">
       <div class="popup-box">
         <h2>⚠️ ALARME CRÍTICO</h2>
         <p>Esta manobra derrubou a CAG</p>
         <button onclick="document.getElementById('popup-cag').classList.add('hidden')">Fechar</button>
+      </div>
+    </div>
+
+    <div id="popup-componente" class="popup-overlay hidden">
+      <div class="popup-box">
+        <!--<button class="fechar-popup">✖</button>-->
+
+        <h2 id="popup-titulo"></h2>
+
+        <img id="popup-imagem" src="" alt="">
+
+        <div id="popup-texto"></div>
+
+        <div class="popup-nav">
+          <button id="popup-prev" type="button">← Anterior</button>
+          <span id="popup-counter">1 / 10</span>
+          <button id="popup-next" type="button">Próximo →</button>
+        </div>
       </div>
     </div>
 
