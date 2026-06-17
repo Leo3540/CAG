@@ -23,31 +23,31 @@
 }
 
 /* --- Padrão de bolhas: bolinhas semitransparentes sobre o tubo --- */
-.fluxo-dir .corpo,
-.fluxo-esq .corpo,
+.fluxo-dir   .corpo,
+.fluxo-esq   .corpo,
 .fluxo-baixo .corpo,
-.fluxo-cima .corpo,
+.fluxo-cima  .corpo,
 .fluxo-parado .corpo {
   position: relative;
   overflow: hidden;
 }
 
-.fluxo-dir  .corpo::after,
-.fluxo-esq  .corpo::after,
+.fluxo-dir   .corpo::after,
+.fluxo-esq   .corpo::after,
 .fluxo-cima  .corpo::after,
 .fluxo-baixo .corpo::after {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.55) 3px, transparent 3px);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 3px, transparent 3px);
   background-size: 20px 13px;
   pointer-events: none;
 }
 
-.fluxo-dir  .corpo::after { animation: fluxo-dir  1.5s linear infinite; }
-.fluxo-esq  .corpo::after { animation: fluxo-esq  1.5s linear infinite; }
+.fluxo-dir   .corpo::after { animation: fluxo-dir   1.5s linear infinite; }
+.fluxo-esq   .corpo::after { animation: fluxo-esq   1.5s linear infinite; }
 .fluxo-baixo .corpo::after { animation: fluxo-baixo 1.5s linear infinite; }
-.fluxo-cima .corpo::after { animation: fluxo-cima 1.5s linear infinite; }
+.fluxo-cima  .corpo::after { animation: fluxo-cima  1.5s linear infinite; }
 
 /* Tubos parados (válvula fechada) — sem animação, bolhas estáticas acinzentadas */
 .fluxo-parado .corpo {
@@ -301,14 +301,14 @@ body.dragging {
 /* Tê ┬ — derivação para baixo */
 .te-baixo .principal { top: 13px; }
 .te-baixo .derivacao { top: 24px; }
-.te-baixo .flange-1  { width: 5px;  height: 16px; top: 12px;  left: -1px; }
+.te-baixo .flange-1  { width: 5px;  height: 16px; top: 12px;  left:  -1px; }
 .te-baixo .flange-2  { width: 5px;  height: 16px; top: 12px;  right: -1px; }
 .te-baixo .flange-3  { width: 18px; height: 5px;  bottom: -1px; left: 11px; }
 
 /* Tê ┴ — derivação para cima */
 .te-cima .principal { top: 13px; }
 .te-cima .derivacao { top: 0; }
-.te-cima .flange-1  { width: 5px;  height: 16px; top: 12px; left: -1px; }
+.te-cima .flange-1  { width: 5px;  height: 16px; top: 12px; left:  -1px; }
 .te-cima .flange-2  { width: 5px;  height: 16px; top: 12px; right: -1px; }
 .te-cima .flange-3  { width: 17px; height: 5px;  top: -1px; left: 11px; }
 
@@ -432,7 +432,7 @@ body.dragging {
 .fechada .corpo1 {
   background: radial-gradient(circle at 35% 35%, #aaa, #555, #222);
 }
-.datahall{
+.datahall {
   position: absolute;
   background: rgb(241, 240, 240);
   width: 170px;
@@ -442,8 +442,8 @@ body.dragging {
   color: #b36710;
   border-radius: 15px;
   font-size: small;
-
 }
+
 /* Container principal do componente */
 .tanque-container {
   display: flex;
@@ -565,7 +565,7 @@ body.dragging {
 }
 
 /* =========================
-POPUP CAG
+   POPUP CAG
 ========================= */
 
 .popup-cag {
@@ -575,7 +575,7 @@ POPUP CAG
   width: 100%;
   height: 100%;
 
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
 
   display: flex;
   align-items: center;
@@ -596,7 +596,7 @@ POPUP CAG
 
   border: 2px solid red;
 
-  box-shadow: 0 0 20px rgba(255,0,0,0.8);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
   animation: pulse-alert 1s infinite;
 }
 
@@ -611,106 +611,105 @@ POPUP CAG
 }
 
 @keyframes pulse-alert {
-  0% { box-shadow: 0 0 10px red; }
-  50% { box-shadow: 0 0 25px red; }
+  0%   { box-shadow: 0 0 10px red; }
+  50%  { box-shadow: 0 0 25px red; }
   100% { box-shadow: 0 0 10px red; }
 }
 
 .desligado {
-    /* Variáveis padrão (podem ser sobrescritas no HTML inline) */
-    --largura: 250px;
-    --altura: 500px;
-    --cor-fundo: #9ea29f;       /* verde claro */
-    --cor-escura: #788f7e;      /* verde escuro */
-    --cor-media: #e9f0ec;       /* verde médio (laterais) */
-    --cor-branca: #ffffff;
-    --cor-borda: #606060;
+  /* Variáveis padrão (podem ser sobrescritas no HTML inline) */
+  --largura: 250px;
+  --altura: 500px;
+  --cor-fundo: #9ea29f;       /* verde claro */
+  --cor-escura: #788f7e;      /* verde escuro */
+  --cor-media: #e9f0ec;       /* verde médio (laterais) */
+  --cor-branca: #ffffff;
+  --cor-borda: #606060;
 
-    width: var(--largura);
-    height: var(--altura);
-    display: flex;
-    position: relative;
+  width: var(--largura);
+  height: var(--altura);
+  display: flex;
+  position: relative;
 }
 .fachada {
-    /* Variáveis padrão (podem ser sobrescritas no HTML inline) */
-    --largura: 250px;
-    --altura: 500px;
-    --cor-fundo: #5fe87a;       /* verde claro */
-    --cor-escura: #1f6b34;      /* verde escuro */
-    --cor-media: #4ade80;       /* verde médio (laterais) */
-    --cor-branca: #ffffff;
-    --cor-borda: #2d7a3f;
+  /* Variáveis padrão (podem ser sobrescritas no HTML inline) */
+  --largura: 250px;
+  --altura: 500px;
+  --cor-fundo: #5fe87a;       /* verde claro */
+  --cor-escura: #1f6b34;      /* verde escuro */
+  --cor-media: #4ade80;       /* verde médio (laterais) */
+  --cor-branca: #ffffff;
+  --cor-borda: #2d7a3f;
 
-    width: var(--largura);
-    height: var(--altura);
-    display: flex;
-    position: relative;
+  width: var(--largura);
+  height: var(--altura);
+  display: flex;
+  position: relative;
 }
-
 
 /* Semicírculos laterais externos */
 .laterais-esquerda {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    /* largura proporcional ao tamanho da fachada */
-    width: calc(var(--largura) * 0.06);
-    padding: calc(var(--altura) * 0.05) 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  /* largura proporcional ao tamanho da fachada */
+  width: calc(var(--largura) * 0.06);
+  padding: calc(var(--altura) * 0.05) 0;
 }
 /* Área verde principal */
 .conteudo {
-    flex: 1;
-    background-color: var(--cor-fundo);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: calc(var(--largura) * 0.04);
-    padding: calc(var(--largura) * 0.04);
+  flex: 1;
+  background-color: var(--cor-fundo);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--largura) * 0.04);
+  padding: calc(var(--largura) * 0.04);
 }
 
 /* ===== COLUNA ESQUERDA ===== */
 .coluna-esquerda {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--altura) * 0.012);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--altura) * 0.012);
 }
 
 .quadrado-branco {
-    background-color: var(--cor-branca);
-    aspect-ratio: 1 / 1;
-    width: 65%;
-    border: 1px solid #ccc;
+  background-color: var(--cor-branca);
+  aspect-ratio: 1 / 1;
+  width: 65%;
+  border: 1px solid #ccc;
 }
 
 .persiana {
-    flex: 1;
-    background: repeating-linear-gradient(
-        to right,
-        var(--cor-borda) 0px,
-        var(--cor-borda) 2px,
-        var(--cor-fundo) 2px,
-        var(--cor-fundo) 5px
-    );
-    border: 1px solid var(--cor-borda);
+  flex: 1;
+  background: repeating-linear-gradient(
+    to right,
+    var(--cor-borda)  0px,
+    var(--cor-borda)  2px,
+    var(--cor-fundo)  2px,
+    var(--cor-fundo)  5px
+  );
+  border: 1px solid var(--cor-borda);
 }
 
 /* ===== COLUNA DIREITA ===== */
 .coluna-direita {
-    display: flex;
-    flex-direction: column;
-    gap: calc(var(--altura) * 0.015);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--altura) * 0.015);
 }
 
 .bloco {
-    flex: 1;
-    border: 1px solid var(--cor-borda);
+  flex: 1;
+  border: 1px solid var(--cor-borda);
 }
 
 .bloco.verde-escuro {
-    background-color: var(--cor-escura);
+  background-color: var(--cor-escura);
 }
 
 .bloco.branco {
-    background-color: var(--cor-branca);
+  background-color: var(--cor-branca);
 }
 
 .popup-box button {
@@ -728,17 +727,17 @@ POPUP CAG
   background: #e00;
 }
 .campo {
-    display: flex;
-    gap: 5px;
+  display: flex;
+  gap: 5px;
 }
 
 input {
-    width: 60px;
-    text-align: center;
-    padding: 5px;
-    border: none;
+  width: 60px;
+  text-align: center;
+  padding: 5px;
+  border: none;
 }
-#valvula_fancoil{
+#valvula_fancoil {
   position: absolute;
   top: -40px;
   width: 80px;
@@ -746,18 +745,16 @@ input {
   background: #2284e6;
   font-size: 15px;
   font-weight: bold;
- 
 }
-#val-fan{
+#val-fan {
   position: absolute;
   top: -38px;
   width: 180px;
   left: 180px;
   background: #2284e6;
   font-weight: bold;
-
 }
-#bypass{
+#bypass {
   position: absolute;
   top: 343px;
   width: 80px;
@@ -765,16 +762,103 @@ input {
   background: #2284e6;
   font-size: 15px;
   font-weight: bold;
- 
 }
-#val_bypass{
+#val_bypass {
   position: absolute;
   top: 343px;
   width: 140px;
   left: 360px;
   background: #2284e6;
   font-weight: bold;
-
+}
+#componentes-menu {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #3a5a7a;
+  background: #1e3048;
+  color: #fff;
 }
 
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
 
+.popup-overlay.hidden {
+  display: none;
+}
+
+.popup-box {
+  width: 700px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.popup-box img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin: 15px 0;
+}
+
+.fechar-popup {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  background: #d32f2f;
+  color: white;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#popup-texto {
+  line-height: 1.6;
+}
+
+.popup-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}
+
+.popup-nav button {
+  padding: 8px 16px;
+  background: #1e3048;
+  border: 1px solid #3a5a7a;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.popup-nav button:hover {
+  background: #2a4a6a;
+}
+
+.popup-nav button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#popup-counter {
+  font-size: 13px;
+  color: #555;
+  font-family: monospace;
+}
